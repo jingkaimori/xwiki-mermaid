@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.xwiki.rendering</groupId>
+    <artifactId>xwiki-rendering</artifactId>
+    <version>13.1</version>
+  </parent>
+  <groupId>org.xwiki.contrib</groupId>
+  <artifactId>xwiki-mermaid</artifactId>
+  <version>0.1.0</version>
+  <name>XwikiMermaidApplication</name>
+  <packaging>xar</packaging>
+  <description>Generate Diagrams using Mermaid.For more detail, see [[Mermaid Document>>https://mermaid-js.github.io/mermaid/]]</description>
+  <licenses>
+    <license>
+      <name>Apache 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.html</url>
+    </license> 
+  </licenses>
+  <properties>
+    <xwiki.nexus.serverId>xwiki-staging</xwiki.nexus.serverId>
+    <xwiki.nexus.nexusUrl>http://nexus.xwiki.org/nexus/</xwiki.nexus.nexusUrl>
+
+    <!-- Put clirr back in automatic mode -->
+    <xwiki.compatibility.previous.version/>
+
+    <!-- Auto release on jira is disabled by default -->
+    <xwiki.release.jira.skip>false</xwiki.release.jira.skip>
+
+    <xwiki.version>13.0</xwiki.version>
+    <xwiki.issueManagement.system>github</xwiki.issueManagement.system>
+    <xwiki.issueManagement.url>https://github.com/jingkaimori/xwiki-mermaid/issues</xwiki.issueManagement.url>
+  </properties>
+
+  <build>
+    <extensions>
+      <extension>
+        <groupId>org.xwiki.commons</groupId>
+        <artifactId>xwiki-commons-tool-xar-handlers</artifactId>
+        <version>13.1</version>
+      </extension>
+    </extensions>
+    <plugins>
+       <!-- The XAR packaging uses the XAR plugin and thus we need to define what version to use -->
+       <plugin>
+        <groupId>org.xwiki.commons</groupId>
+        <artifactId>xwiki-commons-tool-xar-plugin</artifactId>
+        <version>13.1</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <includes>
+            <!-- Include only the WebJar content -->
+            <include>META-INF/**</include>
+          </includes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-webjar-resources</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>resources</goal>
+            </goals>
+            <configuration>
+              <!-- Follow the specifications regarding the WebJar content path. -->
+              <outputDirectory>
+      ${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}
+              </outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <!-- Verify that all org.xwiki.commons dependencies have a version specified either as:
+               - ${commons.version}
+               - a value not starting with $ (we want to allow supporting ranges)
+               Also verifies that all org.xwiki.rendering dependencies have a version specified either as:
+               - ${rendering.version}
+               - a value not starting with $ (we want to allow supporting ranges)
+          -->
+          <execution>
+            <id>check-dependency-version</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <validateDependencyVersion implementation="org.xwiki.tool.enforcer.ValidateDependencyVersion">
+                  <versionCheck>
+                    <groupIdPrefix>org.xwiki.commons</groupIdPrefix>
+                    <allowedVersionRegex>\$\{commons.version\}|[^$].*</allowedVersionRegex>
+                  </versionCheck>
+                  <versionCheck>
+                    <groupIdPrefix>org.xwiki.rendering</groupIdPrefix>
+                    <allowedVersionRegex>\$\{rendering.version\}|[^$].*</allowedVersionRegex>
+                  </versionCheck>
+                </validateDependencyVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles></profiles>
+
+  <!-- Make sure the extension don't ends up with xwiki-commons scm -->
+  <scm>
+    <connection>scm:git://github.com/jingkaimori/xwiki-mermaid.git</connection>
+    <developerConnection>scm:git:git@github.com:/jingkaimori/xwiki-mermaid.git</developerConnection>
+    <url>https://github.com/jingkaimori/xwiki-mermaid.git</url>
+  </scm>
+
+  <!-- Make sure the extension don't ends up with xwiki-commons developers -->
+  <developers>
+    <developer>
+      <id>jingkaimori</id>
+      <name>jingkaimori</name>
+      <email>jingkaimori@gmail.com</email>
+    </developer>
+  </developers>
+
+  <!-- Make sure the extension don't ends up with xwiki-commons issueManagement -->
+  <issueManagement>
+    <system>${xwiki.issueManagement.system}</system>
+    <url>${xwiki.issueManagement.url}</url>
+  </issueManagement>
+
+  <!-- Set a more accurate organization -->
+  <organization>
+    <name>XWiki Contrib</name>
+    <url>http://contrib.xwiki.org/</url>
+  </organization>
+
+  <!-- Standard Maven plugin for contrib extensions -->
+  <distributionManagement>
+    <repository>
+      <id>xwiki-staging</id>
+      <name>XWiki Staging Repository</name>
+      <url>https://nexus.xwiki.org/nexus/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
+</project>
